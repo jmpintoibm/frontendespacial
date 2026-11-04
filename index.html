@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starship & Planeta Terra | Fronteiras Espaciais | SpaceX</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        space: {
+                            dark: '#030712',
+                            card: 'rgba(17, 24, 39, 0.75)',
+                            neonBlue: '#38bdf8',
+                            neonPurple: '#c084fc',
+                            accent: '#3b82f6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fonte Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        /* Efeito Glassmorphism nos cards */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(56, 189, 248, 0.5);
+            box-shadow: 0 12px 30px -10px rgba(56, 189, 248, 0.25);
+        }
+
+        /* Animação suave para brilhos e gradientes */
+        .glow-text {
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+        }
+
+        .glow-purple {
+            text-shadow: 0 0 20px rgba(192, 132, 252, 0.6);
+        }
+
+        /* Canvas de fundo estrelado fixo */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Efeito de imagem zoom no hover */
+        .img-zoom-container {
+            overflow: hidden;
+        }
+        .img-zoom {
+            transition: transform 0.6s ease;
+        }
+        .glass-card:hover .img-zoom {
+            transform: scale(1.08);
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030712;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #38bdf8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+
+    <!-- Fundo de Estrelas em Canvas -->
+    <canvas id="starfield"></canvas>
+
+    <!-- Cabeçalho -->
+    <header class="w-full border-b border-gray-800/60 backdrop-blur-md sticky top-0 z-40 bg-gray-950/70">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="scrollToTop()">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/30">
+                    <i class="fa-solid font-bold text-white text-lg fa-rocket"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-sky-400 via-indigo-300 to-purple-400">
+                    ASTRO<span class="text-sky-400">EXPLORE</span>
+                </span>
+            </div>
+            <nav class="hidden md:flex space-x-8 text-sm font-medium">
+                <a href="#starship" class="text-gray-300 hover:text-sky-400 transition-colors duration-200">Starship</a>
+                <a href="#terra" class="text-gray-300 hover:text-purple-400 transition-colors duration-200">Planeta Terra</a>
+                <a href="#comparacao" class="text-gray-300 hover:text-indigo-400 transition-colors duration-200">Comparativo</a>
+            </nav>
+            <button onclick="scrollToContent()" class="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-medium rounded-full group bg-gradient-to-br from-sky-500 to-purple-600 group-hover:from-sky-500 group-hover:to-purple-600 hover:text-white text-white focus:outline-none">
+                <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-gray-900 rounded-full group-hover:bg-opacity-0">
+                    Explorar <i class="fa-solid fa-arrow-down ml-2 text-xs"></i>
+                </span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Seção Hero -->
+    <section class="relative py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center justify-center">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-300 text-xs sm:text-sm font-semibold mb-6 animate-pulse">
+            <i class="fa-solid fa-sparkles"></i> Da Terra às Estrelas: O Futuro do Transporte Espacial
+        </div>
+        <h1 class="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white mb-6 leading-tight">
+            A Origem da Vida & O <br class="hidden sm:inline" />
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 via-indigo-300 to-purple-500 glow-text">
+                Veículo para Multiplanetários
+            </span>
+        </h1>
+        <p class="max-w-3xl text-gray-400 text-base sm:text-lg md:text-xl font-light mb-10 leading-relaxed">
+            Descubra detalhes fascinantes sobre o <strong>Planeta Terra</strong>, o berço da humanidade, e o <strong>Starship da SpaceX</strong>, a espaçonave concebida para nos levar além da órbita terrestre, rumo a Marte e ao sistema solar.
+        </p>
+        <div class="flex flex-wrap gap-4 justify-center">
+            <a href="#starship" class="px-7 py-3.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-gray-950 font-bold shadow-lg shadow-sky-500/25 transition duration-300 flex items-center gap-2">
+                <i class="fa-solid fa-shuttle-space"></i> Ver Starship
+            </a>
+            <a href="#terra" class="px-7 py-3.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 font-bold transition duration-300 flex items-center gap-2">
+                <i class="fa-solid fa-earth-americas"></i> Ver Planeta Terra
+            </a>
+        </div>
+    </section>
+
+    <!-- Seção Principal de Cartões Interativos -->
+    <main id="content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
+
+        <!-- CARD 1: STARSHIP -->
+        <section id="starship" class="scroll-mt-28">
+            <div class="glass-card rounded-3xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 border border-gray-800">
+                <!-- Imagem do Starship -->
+                <div class="lg:col-span-6 relative img-zoom-container min-h-[350px] lg:min-h-[500px] flex items-center justify-center bg-gray-950">
+                    <img 
+                        src="http://googleusercontent.com/image_collection/image_retrieval/10060016411638347460_0" 
+                        alt="Foguete Starship da SpaceX" 
+                        class="img-zoom w-full h-full object-cover"
+                        onerror="this.src='https://placehold.co/800x600/0f172a/38bdf8?text=Starship+SpaceX';"
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-950 via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-gray-950/90"></div>
+                    <span class="absolute top-4 left-4 bg-sky-500/90 text-gray-950 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider backdrop-blur-md">
+                        Engenharia Aeroespacial
+                    </span>
+                </div>
+                
+                <!-- Informações do Starship -->
+                <div class="lg:col-span-6 p-6 sm:p-8 lg:p-10 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-3 text-sky-400 font-semibold text-sm mb-2">
+                            <i class="fa-solid fa-rocket"></i> SpaceX
+                        </div>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+                            Starship & Super Heavy
+                        </h2>
+                        <p class="text-gray-300 text-sm sm:text-base leading-relaxed mb-6 font-light">
+                            O Starship é o sistema de transporte totalmente reutilizável projetado pela SpaceX para levar tripulação e carga para a órbita da Terra, a Lua, Marte e além. É o foguete mais poderoso já construído pela humanidade.
+                        </p>
+
+                        <!-- Estatísticas Grid -->
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <div class="bg-gray-900/80 p-4 rounded-2xl border border-gray-800">
+                                <span class="block text-gray-400 text-xs uppercase tracking-wider font-semibold">Altura Total</span>
+                                <span class="text-2xl font-bold text-sky-400 mt-1 block">121 Metros</span>
+                            </div>
+                            <div class="bg-gray-900/80 p-4 rounded-2xl border border-gray-800">
+                                <span class="block text-gray-400 text-xs uppercase tracking-wider font-semibold">Empuxo na Decolagem</span>
+                                <span class="text-2xl font-bold text-sky-400 mt-1 block">~7.500 Ton</span>
+                            </div>
+                            <div class="bg-gray-900/80 p-4 rounded-2xl border border-gray-800">
+                                <span class="block text-gray-400 text-xs uppercase tracking-wider font-semibold">Capacidade Carga</span>
+                                <span class="text-2xl font-bold text-sky-400 mt-1 block">100 - 150+ t</span>
+                            </div>
+                            <div class="bg-gray-900/80 p-4 rounded-2xl border border-gray-800">
+                                <span class="block text-gray-400 text-xs uppercase tracking-wider font-semibold">Combustível</span>
+                                <span class="text-2xl font-bold text-sky-400 mt-1 block">Metano + O₂</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão de Ação -->
+                    <div class="pt-4 border-t border-gray-800/80 flex items-center justify-between">
+                        <button onclick="openModal('starship')" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold transition-all duration-300 shadow-md shadow-sky-500/20 flex items-center justify-center gap-2">
+                            <span>Mais Detalhes sobre o Starship</span>
+                            <i class="fa-solid fa-circle-info"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CARD 2: PLANETA TERRA -->
+        <section id="terra" class="scroll-mt-28">
+            <div class="glass-card rounded-3xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 border border-gray-800">
+                
+                <!-- Informações da Terra (Lado esquerdo em telas grandes) -->
+                <div class="lg:col-span-6 p-6 sm:p-8 lg:p-10 flex flex-col justify-between order-2 lg:order-1">
+                    <div>
+                        <div class="flex items-center gap-3 text-purple-400 font-semibold text-sm mb-2">
+                            <i class="fa-solid fa-globe"></i> Nosso Lar
+                        </div>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+                            Planeta Terra
+                        </h2>
+                        <p class="text-gray-300 text-sm sm:text-base leading-relaxed mb-6 font-light">
+                            A Terra é o terceiro planeta a partir do Sol e o único objeto astronômico conhecido por abrigar vida. Com vastos oceanos de água líquida e uma atmosfera rica em oxigênio, ela é o nosso oásis azul no cosmos.
+                        </p>
+
+                        <!-- Estatísticas Grid -->
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <div class="bg-gray-900/80 p-4 rounded-2xl border border-gray-800">
+                                <span class="block text-gray-400 text-xs uppercase tracking-wider font-semibold">Diâmetro Equador</span>
+                                <span class="text-2xl font-bold text-purple-400 mt-1 block">12.742 km</span>
+                            </div>
+                            <div class="bg-gray-900/80 p-4 rounded-2xl border border-gray-800">
+                                <span class="block text-gray-400 text-xs uppercase tracking-wider font-semibold">Superfície d'Água</span>
+                                <span class="text-2xl font-bold text-purple-400 mt-1 block">~71%</span>
+                            </div>
+                            <div class="bg-gray-900/80 p-4 rounded-2xl border border-gray-800">
+                                <span class="block text-gray-400 text-xs uppercase tracking-wider font-semibold">Distância do Sol</span>
+                                <span class="text-2xl font-bold text-purple-400 mt-1 block">149.6 M km</span>
+                            </div>
+                            <div class="bg-gray-900/80 p-4 rounded-2xl border border-gray-800">
+                                <span class="block text-gray-400 text-xs uppercase tracking-wider font-semibold">População Humana</span>
+                                <span class="text-2xl font-bold text-purple-400 mt-1 block">&gt; 8 Bilhões</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão de Ação -->
+                    <div class="pt-4 border-t border-gray-800/80 flex items-center justify-between">
+                        <button onclick="openModal('terra')" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold transition-all duration-300 shadow-md shadow-purple-600/20 flex items-center justify-center gap-2">
+                            <span>Mais Detalhes sobre a Terra</span>
+                            <i class="fa-solid fa-circle-info"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Imagem da Terra -->
+                <div class="lg:col-span-6 relative img-zoom-container min-h-[350px] lg:min-h-[500px] flex items-center justify-center bg-gray-950 order-1 lg:order-2">
+                    <img 
+                        src="http://googleusercontent.com/image_collection/image_retrieval/18075592332061619283_0" 
+                        alt="O Planeta Terra visto do espaço" 
+                        class="img-zoom w-full h-full object-cover"
+                        onerror="this.src='https://placehold.co/800x600/0f172a/c084fc?text=Planeta+Terra';"
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-950 via-transparent to-transparent lg:bg-gradient-to-l lg:from-transparent lg:to-gray-950/90"></div>
+                    <span class="absolute top-4 right-4 bg-purple-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider backdrop-blur-md">
+                        Sistema Solar
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção do Comparativo de Escala -->
+        <section id="comparacao" class="glass-card rounded-3xl p-6 sm:p-10 border border-gray-800">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <h3 class="text-2xl sm:text-3xl font-extrabold text-white mb-3">
+                    Perspectiva de Escala & Exploração
+                </h3>
+                <p class="text-gray-400 text-sm sm:text-base">
+                    Como o maior foguete já construído se relaciona com o planeta que ele busca expandir no cosmos?
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card Comparativo 1 -->
+                <div class="bg-gray-900/60 p-6 rounded-2xl border border-gray-800/80 hover:border-sky-500/40 transition">
+                    <div class="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center text-xl mb-4">
+                        <i class="fa-solid fa-arrows-up-down"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Velocidade de Escape</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Para deixar a gravidade da Terra, o Starship precisa atingir uma velocidade de aproximadamente <strong>28.000 km/h</strong> (Velocidade Orbital).
+                    </p>
+                </div>
+
+                <!-- Card Comparativo 2 -->
+                <div class="bg-gray-900/60 p-6 rounded-2xl border border-gray-800/80 hover:border-indigo-500/40 transition">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl mb-4">
+                        <i class="fa-solid fa-recycle"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Total Reutilização</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Ao contrário de foguetes históricos, o Starship foi feito para pousar de volta na Terra e ser reutilizado em poucas horas, barateando custos em 90%.
+                    </p>
+                </div>
+
+                <!-- Card Comparativo 3 -->
+                <div class="bg-gray-900/60 p-6 rounded-2xl border border-gray-800/80 hover:border-purple-500/40 transition">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl mb-4">
+                        <i class="fa-solid fa-earth-mars"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Ponte Interplanetária</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        A Terra é o ponto de partida. O objetivo final do Starship é estabelecer uma colônia autossustentável em Marte, tornando a humanidade uma espécie multiplanetária.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Interativo de Detalhes -->
+    <div id="infoModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-gray-950/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
+        <div class="glass-card bg-gray-900 border border-gray-700 rounded-3xl max-w-2xl w-full p-6 sm:p-8 relative transform scale-95 transition-transform duration-300 overflow-y-auto max-h-[90vh]">
+            <!-- Botão Fechar -->
+            <button onclick="closeModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white bg-gray-800/60 hover:bg-gray-700 w-9 h-9 rounded-full flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Conteúdo Dinâmico do Modal -->
+            <div id="modalContent">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="border-t border-gray-800/80 bg-gray-950/80 mt-20 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-gray-500 text-sm text-center sm:text-left">
+                © 2026 AstroExplore. Desenvolvido para entusiastas da ciência aeroespacial.
+            </p>
+            <div class="flex space-x-6 text-gray-400 text-lg">
+                <a href="#" class="hover:text-sky-400 transition"><i class="fa-brands fa-github"></i></a>
+                <a href="#" class="hover:text-sky-400 transition"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#" class="hover:text-sky-400 transition"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript para Animações e Interatividade -->
+    <script>
+        // Data para o Modal Interativo
+        const modalData = {
+            starship: {
+                title: "Starship: O Foguete Mais Poderoso",
+                subtitle: "SpaceX Aerospace Engineering",
+                color: "text-sky-400",
+                badgeBg: "bg-sky-500/20 text-sky-300 border-sky-500/30",
+                content: `
+                    <p class="text-gray-300 text-sm sm:text-base mb-4 leading-relaxed">
+                        O sistema Starship é composto por dois estágios: o booster de primeiro estágio chamado <strong>Super Heavy</strong> e a espaçonave de segundo estágio <strong>Starship</strong>.
+                    </p>
+                    <h5 class="font-bold text-white mb-2 text-md">Fatos Fascinantes:</h5>
+                    <ul class="list-disc list-inside text-gray-400 text-sm space-y-2 mb-6">
+                        <li><strong>Motores Raptor:</strong> Utiliza até 33 motores Raptor no Super Heavy e 6 na nave Starship, alimentados por metano líquido e oxigênio líquido (Methalox).</li>
+                        <li><strong>Captura na Torre:</strong> A torre de lançamento apelidada de <em>"Mechazilla"</em> possui braços mecânicos projetados para "agarrar" o booster Super Heavy no ar em seu retorno.</li>
+                        <li><strong>Escudo Térmico:</strong> Coberto por milhares de placas hexagonais de cerâmica para suportar o calor extremo de reentrada na atmosfera (mais de 1.400 °C).</li>
+                    </ul>
+                    <div class="p-4 bg-sky-950/30 rounded-xl border border-sky-800/40 text-xs text-sky-200">
+                        <i class="fa-solid fa-lightbulb mr-1"></i> <strong>Você sabia?</strong> O metano foi escolhido em parte porque pode ser sintetizado em Marte através da Reação de Sabatier, usando o dióxido de carbono da atmosfera marciana e água do subsolo.
+                    </div>
+                `
+            },
+            terra: {
+                title: "Planeta Terra: Nosso Oásis Cósmico",
+                subtitle: "O Único Mundo Habitado Conhecido",
+                color: "text-purple-400",
+                badgeBg: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+                content: `
+                    <p class="text-gray-300 text-sm sm:text-base mb-4 leading-relaxed">
+                        Formada há aproximadamente 4,54 bilhões de anos, a Terra possui um campo magnético protetor gerado por seu núcleo de ferro derretido, que nos protege dos ventos solares e radiação nociva.
+                    </p>
+                    <h5 class="font-bold text-white mb-2 text-md">Fatos Fascinantes:</h5>
+                    <ul class="list-disc list-inside text-gray-400 text-sm space-y-2 mb-6">
+                        <li><strong>Atmosfera Protetora:</strong> Composta por 78% de Nitrogênio, 21% de Oxigênio e traços de outros gases que tornam a respiração e a vida possíveis.</li>
+                        <li><strong>Escudo Magnético:</strong> O magnetosfera desvia partículas carregadas do Sol, criando o lindo fenômeno das Auroras Polares.</li>
+                        <li><strong>Apenas um Satélite Natural:</strong> A Lua estabiliza a inclinação axial da Terra, moderando o clima do nosso planeta ao longo de milênios.</li>
+                    </ul>
+                    <div class="p-4 bg-purple-950/30 rounded-xl border border-purple-800/40 text-xs text-purple-200">
+                        <i class="fa-solid fa-earth-americas mr-1"></i> <strong>Efeito Visão Geral (Overview Effect):</strong> Astronautas relatam uma transformação cognitiva ao olhar para a Terra do espaço, vendo um planeta frágil e sem fronteiras visíveis.
+                    </div>
+                `
+            }
+        };
+
+        // Função para Abrir o Modal
+        function openModal(type) {
+            const modal = document.getElementById('infoModal');
+            const modalContent = document.getElementById('modalContent');
+            const data = modalData[type];
+
+            if (!data) return;
+
+            modalContent.innerHTML = `
+                <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full border ${data.badgeBg} mb-3">
+                    ${data.subtitle}
+                </span>
+                <h3 class="text-2xl sm:text-3xl font-extrabold text-white mb-4 ${data.color}">
+                    ${data.title}
+                </h3>
+                ${data.content}
+            `;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('.glass-card').classList.remove('scale-95');
+                modal.querySelector('.glass-card').classList.add('scale-100');
+            }, 10);
+        }
+
+        // Função para Fechar o Modal
+        function closeModal() {
+            const modal = document.getElementById('infoModal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.glass-card').classList.remove('scale-100');
+            modal.querySelector('.glass-card').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Fechar modal clicando fora dele
+        window.onclick = function(event) {
+            const modal = document.getElementById('infoModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Scroll Suave
+        function scrollToContent() {
+            document.getElementById('content').scrollIntoView({ behavior: 'smooth' });
+        }
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Canvas de Estrelas Animadas
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            const count = Math.floor((canvas.width * canvas.height) / 3000);
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.5,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.01 + 0.005
+                });
+            }
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(star => {
+                star.alpha += star.speed;
+                if (star.alpha > 1 || star.alpha < 0) {
+                    star.speed = -star.speed;
+                }
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(star.alpha)})`;
+                ctx.fill();
+            });
+            requestAnimationFrame(animateStars);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Inicialização quando a página carrega
+        window.onload = function() {
+            resizeCanvas();
+            animateStars();
+        };
+    </script>
+</body>
+</html>
