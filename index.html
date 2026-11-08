@@ -38,7 +38,7 @@
                 const dados = await response.json();
                 if (response.status === 200) {
                     localStorage.setItem('userEmail', email);
-                    window.location.href = 'https://d1306l0148ll01.cloudfront.net/home.html';
+                    window.location.href = 'home.html';
                 } else {
                     mensagem.textContent = dados.message || 'Erro ao entrar.';
                 }
