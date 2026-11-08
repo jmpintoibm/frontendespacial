@@ -20,14 +20,14 @@
         // Verifica se o usuário simulou o login corretamente
         const email = localStorage.getItem('userEmail');
         if (!email) {
-            window.location.href = 'login.html'; // Proteção simples de rota
+            window.location.href = 'index.html'; // Proteção simples de rota
         } else {
             document.getElementById('user-display').innerText = email;
         }
 
         function logout() {
             localStorage.removeItem('userEmail');
-            window.location.href = 'https://d1306l0148ll01.cloudfront.net/login.html';
+            window.location.href = 'index.html';
         }
     </script>
 </body>
